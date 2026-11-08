@@ -1,0 +1,17 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { Alert, api, currentLocation, labels, PostType } from '../lib/api';
+import { ErrorMessage, LocationFields, Modal } from './shared';
+
+const allTypes: PostType[] = ['lost', 'sighting', 'rescue'];
+export function AlertsModal({ token, onClose }: { token: string; onClose: () => void }) {
+  const [latitude, setLatitude] = useState(''); const [longitude, setLongitude] = useState(''); const [radius, setRadius] = useState('10'); const [types, setTypes] = useState<PostType[]>(allTypes); const [exists, setExists] = useState(false); const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false); const [locating, setLocating] = useState(false); const [error, setError] = useState(''); const [notice, setNotice] = useState('');
+  useEffect(() => { let active = true; api<Alert | null>('/me/alerts', { token }).then(data => { if (active && data) { setLatitude(String(data.location.coordinates[1])); setLongitude(String(data.location.coordinates[0])); setRadius(String(data.radiusKm)); setTypes(data.types); setExists(true); } }).catch(err => { if (active) setError(err.message); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [token]);
+  async function locate() { setLocating(true); setError(''); try { const p = await currentLocation(); setLatitude(String(p.latitude)); setLongitude(String(p.longitude)); } catch (err) { setError((err as Error).message); } finally { setLocating(false); } }
+  async function save(event: React.FormEvent) { event.preventDefault(); setBusy(true); setError(''); setNotice(''); try { await api('/me/alerts', { method: 'POST', token, body: { location: { latitude: Number(latitude), longitude: Number(longitude) }, radiusKm: Number(radius), types } }); setExists(true); setNotice('Your alert preferences have been saved.'); } catch (err) { setError((err as Error).message); } finally { setBusy(false); } }
+  async function disable() { setBusy(true); setError(''); setNotice(''); try { await api('/me/alerts', { method: 'DELETE', token }); setExists(false); setNotice('Your alert preferences have been removed.'); } catch (err) { setError((err as Error).message); } finally { setBusy(false); } }
+  return <Modal title="Your alert area" subtitle="Choose the area and posts you care about." onClose={onClose}>
+    <div className="info-box">Alert preferences can be saved now. Push notifications and automatic location updates are not available yet.</div>
+    {loading ? <p className="small-muted">Loading preferences...</p> : <form className="form" onSubmit={save}><ErrorMessage message={error}/>{notice && <div className="success" role="status">{notice}</div>}<LocationFields {...{ latitude, longitude, setLatitude, setLongitude, onLocate: locate, locating }}/><label>Radius (km)<input type="number" min="1" max="100" step="any" required value={radius} onChange={e => setRadius(e.target.value)} /></label><fieldset><legend>Post types</legend>{allTypes.map(type => <label className="checkbox" key={type}><input type="checkbox" checked={types.includes(type)} onChange={e => setTypes(e.target.checked ? [...types, type] : types.filter(t => t !== type))}/>{labels[type]}</label>)}</fieldset><button className="button primary wide" disabled={busy}>{busy ? 'Saving...' : 'Save preferences'}</button>{exists && <button className="button secondary wide" type="button" disabled={busy} onClick={disable}>Remove preferences</button>}</form>}
+  </Modal>;
+}
