@@ -1,8 +1,9 @@
 export type PostType = 'lost' | 'sighting' | 'rescue';
 export type Location = { latitude: number; longitude: number };
 export type User = { id: string; displayName: string };
+export type OwnedPet = { _id: string; name: string; species: string; breed: string; description: string; photos: string[] };
 export type PetPost = { _id: string; type: PostType; title: string; description: string; species?: string; photos: string[]; location: { coordinates: [number, number] }; occurredAt: string; createdAt: string; status: 'active' | 'resolved'; author: { _id: string; displayName: string } | null; relatedPost?: string };
-export type Comment = { _id: string; text: string; author: { _id: string; displayName: string } | null; createdAt: string };
+export type Comment = { _id: string; text: string; author: { _id: string; displayName: string } | null; createdAt: string; replies?: Comment[] };
 export type Alert = { location: { coordinates: [number, number] }; radiusKm: number; types: PostType[] };
 export const labels: Record<PostType, string> = { lost: 'Lost pet', sighting: 'Sighting', rescue: 'Found stray' };
 
