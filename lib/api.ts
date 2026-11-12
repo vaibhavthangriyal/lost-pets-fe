@@ -4,10 +4,12 @@ export type User = { id: string; displayName: string; email?: string };
 export type OwnedPet = { _id: string; name: string; species: string; breed: string; description: string; photos: string[] };
 export type PetPost = { _id: string; type: PostType; title: string; description: string; species?: string; breed?: string; photos: string[]; location: { coordinates: [number, number] }; occurredAt: string; createdAt: string; status: 'active' | 'resolved'; author: { _id: string; displayName: string } | null; relatedPost?: string };
 export type MetaOption = { value: string; label: string };
-export type Metadata = { petTypes: MetaOption[]; postTypes: MetaOption[]; breeds: (MetaOption & { petType?: string })[] };
+export type Metadata = { petTypes: MetaOption[]; postTypes: MetaOption[]; breeds: (MetaOption & { petType?: string })[]; currencies: MetaOption[] };
 export type Comment = { _id: string; text: string; author: { _id: string; displayName: string } | null; createdAt: string; replies?: Comment[] };
 export type NotificationLocation = { _id: string; name: string; location: { coordinates: [number, number] }; radiusKm: number; types: PostType[]; active: boolean };
 export type AppNotification = { _id: string; post: string; title: string; body: string; readAt?: string; openedAt?: string; createdAt: string };
+export type EligiblePosterPost = Pick<PetPost, 'title' | 'description' | 'species' | 'breed' | 'photos' | 'location' | 'occurredAt' | 'status'> & { _id: string };
+export type PosterData = { _id: string; postId: string; heading: string; title: string; description: string; mobileNumber?: string; rewardAmount?: number; currency?: string; species?: string; breed?: string; photo?: string; location: { coordinates: [number, number] }; occurredAt: string; status: string; createdAt: string };
 export const labels: Record<PostType, string> = { lost: 'Lost pet', sighting: 'Sighting', rescue: 'Found stray' };
 
 export async function api<T>(path: string, options: { method?: string; body?: unknown; token?: string } = {}): Promise<T> {
