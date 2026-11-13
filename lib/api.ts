@@ -9,7 +9,7 @@ export type Comment = { _id: string; text: string; author: { _id: string; displa
 export type NotificationLocation = { _id: string; name: string; location: { coordinates: [number, number] }; radiusKm: number; types: PostType[]; active: boolean };
 export type AppNotification = { _id: string; post: string; title: string; body: string; readAt?: string; openedAt?: string; createdAt: string };
 export type EligiblePosterPost = Pick<PetPost, 'title' | 'description' | 'species' | 'breed' | 'photos' | 'location' | 'occurredAt' | 'status'> & { _id: string };
-export type PosterData = { _id: string; postId: string; heading: string; title: string; description: string; mobileNumber?: string; rewardAmount?: number; currency?: string; species?: string; breed?: string; photo?: string; location: { coordinates: [number, number] }; occurredAt: string; status: string; createdAt: string };
+export type PosterData = { _id: string; postId: string; heading: string; title: string; description: string; mobileNumber?: string; rewardAmount?: number; currency?: string; shortUrl: string; qrCodeDataUrl: string; species?: string; breed?: string; photo?: string; location: { coordinates: [number, number] }; occurredAt: string; status: string; createdAt: string };
 export const labels: Record<PostType, string> = { lost: 'Lost pet', sighting: 'Sighting', rescue: 'Found stray' };
 
 export async function api<T>(path: string, options: { method?: string; body?: unknown; token?: string } = {}): Promise<T> {
